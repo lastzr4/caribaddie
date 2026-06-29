@@ -58,7 +58,7 @@ function SingleCard({
     // motion.div = the card. absolute inset-0 gives definite pixel dimensions.
     // Children use absolute % positioning — no flex height chains.
     <motion.div
-      style={{ x, rotate, opacity: cardOpacity }}
+      style={{ x, rotate, opacity: cardOpacity, zIndex: 10 }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
