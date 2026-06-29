@@ -42,7 +42,8 @@ export default function EditProfilePage() {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from("profiles").update({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.from("profiles") as any).update({
       display_name: displayName,
       bio,
       location_area: location,
