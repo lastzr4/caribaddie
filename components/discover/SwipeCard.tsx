@@ -83,27 +83,37 @@ function SingleCard({
       {/* Card body */}
       <div className="w-full h-full rounded-3xl overflow-hidden bg-white shadow-lg">
         {/* Avatar area */}
-        <div className={`relative h-[58%] bg-gradient-to-br ${bg} flex items-center justify-center overflow-hidden`}>
-          {/* Background photo — using div background-image avoids img sizing bugs */}
-          {profile.avatar_url && !imgError && (
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `url(${profile.avatar_url})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center top",
-              }}
+        <div
+          className="relative overflow-hidden"
+          style={{ height: "58%" }}
+        >
+          {profile.avatar_url && !imgError ? (
+            /* Photo */
+            <img
+              src={profile.avatar_url}
+              alt={profile.display_name ?? ""}
               onError={() => setImgError(true)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center top",
+                display: "block",
+              }}
             />
-          )}
-
-          {/* Initials fallback (shown when no avatar or load error) */}
-          {(!profile.avatar_url || imgError) && (
+          ) : (
+            /* Initials fallback */
             <div
-              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold z-10"
-              style={{ background: avatarColor + "33", color: avatarColor }}
+              className={`w-full h-full bg-gradient-to-br ${bg} flex items-center justify-center`}
             >
-              {getInitials(profile.display_name)}
+              <div
+                className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold"
+                style={{ background: avatarColor + "33", color: avatarColor }}
+              >
+                {getInitials(profile.display_name)}
+              </div>
             </div>
           )}
 
