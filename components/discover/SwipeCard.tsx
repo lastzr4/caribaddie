@@ -55,19 +55,20 @@ function SingleCard({
   };
 
   return (
+    // motion.div IS the card — absolute inset-0 gives it definite height, no h-full chain needed
     <motion.div
       style={{ x, rotate, opacity: cardOpacity }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
       onDragEnd={handleDragEnd}
-      className="absolute inset-0 cursor-grab active:cursor-grabbing"
       whileDrag={{ scale: 1.02 }}
+      className="absolute inset-0 cursor-grab active:cursor-grabbing rounded-3xl overflow-hidden bg-white shadow-lg flex flex-col"
     >
       {/* BUDDY stamp */}
       <motion.div
         style={{ opacity: likeOpacity }}
-        className="absolute top-10 left-6 z-20 rotate-[-18deg] border-[3px] border-[#1D9E75] rounded-xl px-3 py-1"
+        className="absolute top-10 left-6 z-20 rotate-[-18deg] border-[3px] border-[#1D9E75] rounded-xl px-3 py-1 pointer-events-none"
       >
         <span className="text-[#1D9E75] font-black text-xl tracking-widest">BUDDY</span>
       </motion.div>
@@ -75,96 +76,77 @@ function SingleCard({
       {/* SKIP stamp */}
       <motion.div
         style={{ opacity: nopeOpacity }}
-        className="absolute top-10 right-6 z-20 rotate-[18deg] border-[3px] border-[#D85A30] rounded-xl px-3 py-1"
+        className="absolute top-10 right-6 z-20 rotate-[18deg] border-[3px] border-[#D85A30] rounded-xl px-3 py-1 pointer-events-none"
       >
         <span className="text-[#D85A30] font-black text-xl tracking-widest">SKIP</span>
       </motion.div>
 
-      {/* Card body */}
-      <div className="w-full h-full rounded-3xl overflow-hidden bg-white shadow-lg">
-        {/* Avatar area */}
-        <div
-          className="relative overflow-hidden"
-          style={{ height: "58%" }}
-        >
-          {profile.avatar_url && !imgError ? (
-            /* Photo */
-            <img
-              src={profile.avatar_url}
-              alt={profile.display_name ?? ""}
-              onError={() => setImgError(true)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center top",
-                display: "block",
-              }}
-            />
-          ) : (
-            /* Initials fallback */
+      {/* ── Photo area — flex-[3] ≈ 62% of card height ── */}
+      <div className={`relative flex-[3] overflow-hidden bg-gradient-to-br ${bg}`}>
+
+        {profile.avatar_url && !imgError ? (
+          <img
+            src={profile.avatar_url}
+            alt={profile.display_name ?? ""}
+            onError={() => setImgError(true)}
+            className="absolute inset-0 w-full h-full"
+            style={{ objectFit: "cover", objectPosition: "center top" }}
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
             <div
-              className={`w-full h-full bg-gradient-to-br ${bg} flex items-center justify-center`}
+              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold"
+              style={{ background: avatarColor + "33", color: avatarColor }}
             >
-              <div
-                className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold"
-                style={{ background: avatarColor + "33", color: avatarColor }}
-              >
-                {getInitials(profile.display_name)}
-              </div>
+              {getInitials(profile.display_name)}
+            </div>
+          </div>
+        )}
+
+        {/* Badges row */}
+        <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
+          {dist ? (
+            <div className="bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 shadow-sm">
+              <span className="text-[10px]">📡</span>
+              <span className="text-[10px] font-semibold text-gray-700">{dist}</span>
+            </div>
+          ) : <span />}
+
+          {profile.is_verified && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#1D9E75">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              <span className="text-[10px] font-semibold text-green-700">Verified</span>
             </div>
           )}
-
-          {/* Top badges */}
-          <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
-            {/* Distance badge */}
-            {dist && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 shadow-sm">
-                <span className="text-[10px]">📡</span>
-                <span className="text-[10px] font-semibold text-gray-700">{dist}</span>
-              </div>
-            )}
-
-            {/* Verified badge */}
-            {profile.is_verified && (
-              <div className="ml-auto bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#1D9E75">
-                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-                <span className="text-[10px] font-semibold text-green-700">Verified</span>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom gradient */}
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent" />
         </div>
 
-        {/* Info */}
-        <div className="px-5 pt-3 pb-4">
-          <div className="flex items-start justify-between mb-1">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 leading-tight">
-                {profile.display_name ?? "Tiada nama"}
-              </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                📍 {profile.location_area ?? "Kawasan tidak ditetapkan"}
-              </p>
-            </div>
-            <span
-              className="text-xs px-2.5 py-1 rounded-full font-medium mt-1"
-              style={{ background: "var(--brand-light)", color: "var(--brand)" }}
-            >
-              {profile.gender === "female" ? "Perempuan" : profile.gender === "male" ? "Lelaki" : "—"}
-            </span>
-          </div>
+        {/* Bottom fade into info area */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
+      </div>
 
-          <p className="text-sm text-gray-600 leading-relaxed mt-2 line-clamp-2">
-            {profile.bio ?? "Belum ada bio."}
-          </p>
+      {/* ── Info area — flex-[2] ≈ 38% of card height ── */}
+      <div className="flex-[2] px-5 pt-3 pb-4 flex flex-col justify-center">
+        <div className="flex items-start justify-between mb-1">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 leading-tight">
+              {profile.display_name ?? "Tiada nama"}
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              📍 {profile.location_area ?? "Kawasan tidak ditetapkan"}
+            </p>
+          </div>
+          <span
+            className="text-xs px-2.5 py-1 rounded-full font-medium mt-1 flex-shrink-0 ml-2"
+            style={{ background: "var(--brand-light)", color: "var(--brand)" }}
+          >
+            {profile.gender === "female" ? "Perempuan" : profile.gender === "male" ? "Lelaki" : "—"}
+          </span>
         </div>
+        <p className="text-sm text-gray-600 leading-relaxed mt-1 line-clamp-3">
+          {profile.bio ?? "Belum ada bio."}
+        </p>
       </div>
     </motion.div>
   );
