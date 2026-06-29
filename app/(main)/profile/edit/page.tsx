@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import type { Profile } from "@/types";
 
 const AREAS = ["Kuala Lumpur", "Petaling Jaya", "Subang Jaya", "Shah Alam", "Cheras", "Ampang", "Bangsar", "Mont Kiara", "Kepong", "Klang", "Cyberjaya", "Putrajaya"];
 
@@ -23,7 +24,7 @@ export default function EditProfilePage() {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/auth/login"); return; }
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single() as { data: Profile | null; error: unknown };
       if (data) {
         setDisplayName(data.display_name ?? "");
         setBio(data.bio ?? "");
