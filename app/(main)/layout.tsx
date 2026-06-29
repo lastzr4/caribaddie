@@ -3,9 +3,9 @@ import { InstallPrompt } from "@/components/shared/InstallPrompt";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen max-w-md mx-auto">
+    <div className="relative flex flex-col h-screen max-w-md mx-auto bg-white overflow-hidden">
       <InstallPrompt />
-      <main className="flex-1 pb-16">{children}</main>
+      <main className="flex-1 scroll-area">{children}</main>
       <BottomNav />
     </div>
   );
