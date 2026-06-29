@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --brand: #7F77DD;
-  --brand-light: #EEEDFE;
-  --brand-dark: #534AB7;
-  --success: #1D9E75;
-  --danger: #D85A30;
+  /* Theme — editable via admin page (stored in Supabase app_config) */
+  --brand:       #C4622D;
+  --brand-light: #FEF3EE;
+  --brand-dark:  #8B3D1A;
+  --brand-rgb:   196, 98, 45;
+  --success:     #1D9E75;
+  --danger:      #E53E3E;
+  --bg-app:      #FFF8F5;
 }
 
 * {
@@ -17,9 +20,9 @@ html, body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: #f8f7ff;
+  background: var(--bg-app);
   font-family: var(--font-geist), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #1a1a2e;
+  color: #1a1209;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -49,7 +52,7 @@ html, body {
 
 /* Card stack shadow */
 .card-stack {
-  filter: drop-shadow(0 8px 24px rgba(127, 119, 221, 0.15));
+  filter: drop-shadow(0 8px 24px rgba(var(--brand-rgb), 0.18));
 }
 
 /* Gradient overlays for swipe cards */

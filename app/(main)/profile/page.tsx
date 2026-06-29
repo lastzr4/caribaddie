@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import type { Profile } from "@/types";
+import { LogoutButton } from "@/components/profile/LogoutButton";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -21,9 +23,9 @@ export default async function ProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2">
         <h1 className="text-2xl font-black text-gray-900 tracking-tight">Profil</h1>
-        <button className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full font-medium">
+        <Link href="/profile/edit" className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full font-medium">
           Edit
-        </button>
+        </Link>
       </div>
 
       {/* Profile card */}
@@ -31,7 +33,7 @@ export default async function ProfilePage() {
         {/* Cover / avatar */}
         <div className="h-28 bg-gradient-to-br from-violet-100 to-purple-200 relative">
           <div className="absolute -bottom-10 left-5">
-            <div className="w-20 h-20 rounded-2xl bg-[#7F77DD] flex items-center justify-center text-3xl font-bold text-white shadow-md border-4 border-white">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold text-white shadow-md border-4 border-white" style={{ background: "var(--brand)" }}>
               {initial}
             </div>
           </div>
@@ -68,7 +70,7 @@ export default async function ProfilePage() {
           { label: "Chat", value: "0" },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl p-3 text-center border border-gray-100">
-            <p className="text-xl font-bold text-[#7F77DD]">{s.value}</p>
+            <p className="text-xl font-bold" style={{ color: "var(--brand)" }}>{s.value}</p>
             <p className="text-[10px] text-gray-500 mt-0.5">{s.label}</p>
           </div>
         ))}
@@ -96,21 +98,19 @@ export default async function ProfilePage() {
       </div>
 
       {/* Plan card */}
-      <div className="mx-4 mt-3 bg-gradient-to-r from-[#7F77DD] to-[#534AB7] rounded-3xl p-5 flex items-center justify-between">
+      <div className="mx-4 mt-3 rounded-3xl p-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg, var(--brand), var(--brand-dark))" }}>
         <div>
           <p className="text-white font-bold">Plan Free</p>
-          <p className="text-violet-200 text-xs mt-0.5">5 swipe/hari · 1 aktiviti</p>
+          <p className="text-orange-100 text-xs mt-0.5">5 swipe/hari · 1 aktiviti</p>
         </div>
-        <button className="bg-white text-[#7F77DD] text-xs font-bold px-4 py-2 rounded-full">
+        <button className="bg-white text-xs font-bold px-4 py-2 rounded-full" style={{ color: "var(--brand)" }}>
           Upgrade ✨
         </button>
       </div>
 
       {/* Logout */}
       <div className="mx-4 mt-3">
-        <button className="w-full py-3.5 rounded-2xl border border-red-100 text-red-500 text-sm font-medium bg-red-50">
-          Log Keluar
-        </button>
+        <LogoutButton />
       </div>
     </div>
   );
