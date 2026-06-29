@@ -2,30 +2,49 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+
+type Mode = "login" | "signup" | "sent";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"email" | "sent">("email");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<Mode>("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const supabase = createClient();
+  const router = useRouter();
 
-  const handleSendMagicLink = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      router.push("/discover");
+    }
+    setLoading(false);
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const { error } = await supabase.auth.signUp({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
 
     if (error) {
       setError(error.message);
     } else {
-      setStep("sent");
+      setMode("sent");
     }
     setLoading(false);
   };
@@ -41,50 +60,64 @@ export default function LoginPage() {
           <p className="text-sm text-gray-500 mt-1">Cari rakan aktiviti kamu</p>
         </div>
 
-        {step === "email" ? (
-          <form onSubmit={handleSendMagicLink} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Alamat emel
-              </label>
+        {mode === "sent" ? (
+          <div className="text-center space-y-4">
+            <div className="text-5xl">📬</div>
+            <p className="font-semibold text-gray-900">Semak emel kamu!</p>
+            <p className="text-sm text-gray-500">
+              Link pengesahan dihantar ke <span className="font-medium text-gray-700">{email}</span>.
+              Klik link tu, lepas tu boleh log masuk.
+            </p>
+            <button onClick={() => setMode("login")} className="text-sm text-[#7F77DD] underline">
+              ← Kembali log masuk
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Tab toggle */}
+            <div className="flex bg-gray-100 rounded-2xl p-1 mb-6">
+              <button
+                onClick={() => { setMode("login"); setError(""); }}
+                className={`flex-1 py-2 text-sm font-medium rounded-xl transition-all ${mode === "login" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
+              >
+                Log Masuk
+              </button>
+              <button
+                onClick={() => { setMode("signup"); setError(""); }}
+                className={`flex-1 py-2 text-sm font-medium rounded-xl transition-all ${mode === "signup" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}
+              >
+                Daftar
+              </button>
+            </div>
+
+            <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-3">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="kamu@email.com"
+                placeholder="Alamat emel"
                 className="w-full px-4 py-3 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7F77DD] focus:border-transparent"
                 required
               />
-            </div>
-            {error && <p className="text-red-500 text-xs">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#7F77DD] text-white font-medium py-3 rounded-2xl disabled:opacity-60"
-            >
-              {loading ? "Menghantar..." : "Hantar Magic Link"}
-            </button>
-          </form>
-        ) : (
-          <div className="text-center space-y-4">
-            <div className="text-5xl">📬</div>
-            <div>
-              <p className="font-semibold text-gray-900">Semak emel kamu!</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Link log masuk dihantar ke{" "}
-                <span className="font-medium text-gray-700">{email}</span>
-              </p>
-            </div>
-            <p className="text-xs text-gray-400">
-              Klik link dalam emel untuk masuk. Boleh tutup tab ini.
-            </p>
-            <button
-              onClick={() => { setStep("email"); setEmail(""); }}
-              className="text-sm text-[#7F77DD] underline"
-            >
-              Guna emel lain
-            </button>
-          </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Kata laluan"
+                minLength={6}
+                className="w-full px-4 py-3 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7F77DD] focus:border-transparent"
+                required
+              />
+              {error && <p className="text-red-500 text-xs px-1">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#7F77DD] text-white font-medium py-3 rounded-2xl disabled:opacity-60"
+              >
+                {loading ? "Tunggu..." : mode === "login" ? "Log Masuk" : "Daftar Sekarang"}
+              </button>
+            </form>
+          </>
         )}
 
         <p className="text-xs text-gray-400 text-center mt-8 leading-relaxed">
