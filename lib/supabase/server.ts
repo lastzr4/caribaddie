@@ -1,8 +1,6 @@
-import { createServerClient, type CookieMethodsServer } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
-
-type CookieToSet = Parameters<CookieMethodsServer["setAll"]>[0][number];
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -15,13 +13,13 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: CookieToSet[]) {
+        setAll(cookiesToSet: { name: string; value: string; options?: object }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
             );
           } catch {
-            // Server Component — cookies set in middleware
+            // Server Component — cookies set in proxy
           }
         },
       },
