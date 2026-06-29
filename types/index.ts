@@ -10,6 +10,9 @@ export type Profile = {
   avatar_url: string | null;
   location_area: string | null;
   is_verified: boolean;
+  lat: number | null;
+  lng: number | null;
+  distance_km?: number | null;
 };
 
 export type Activity = {
