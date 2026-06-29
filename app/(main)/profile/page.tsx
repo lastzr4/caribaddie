@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import type { Profile } from "@/types";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -11,7 +12,7 @@ export default async function ProfilePage() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .single() as { data: Profile | null; error: unknown };
 
   return (
     <div className="px-4 pt-6">
