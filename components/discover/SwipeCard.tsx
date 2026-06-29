@@ -84,16 +84,23 @@ function SingleCard({
       <div className="w-full h-full rounded-3xl overflow-hidden bg-white shadow-lg">
         {/* Avatar area */}
         <div className={`relative h-[58%] bg-gradient-to-br ${bg} flex items-center justify-center overflow-hidden`}>
-          {profile.avatar_url && !imgError ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.display_name ?? ""}
-              className="absolute inset-0 w-full h-full object-cover"
+          {/* Background photo — using div background-image avoids img sizing bugs */}
+          {profile.avatar_url && !imgError && (
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url(${profile.avatar_url})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center top",
+              }}
               onError={() => setImgError(true)}
             />
-          ) : (
+          )}
+
+          {/* Initials fallback (shown when no avatar or load error) */}
+          {(!profile.avatar_url || imgError) && (
             <div
-              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold"
+              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold z-10"
               style={{ background: avatarColor + "33", color: avatarColor }}
             >
               {getInitials(profile.display_name)}
