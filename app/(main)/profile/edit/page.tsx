@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import type { Profile } from "@/types";
@@ -17,12 +17,15 @@ export default function EditProfilePage() {
   const [location, setLocation]           = useState("");
   const [gender, setGender]               = useState<"male" | "female" | "">("");
   const [preferredGender, setPreferredGender] = useState<"male" | "female" | "any">("any");
+  const [avatarUrl, setAvatarUrl]         = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [hasGps, setHasGps]               = useState(false);
   const [gpsStatus, setGpsStatus]         = useState<"idle" | "loading" | "ok" | "denied">("idle");
   const [coords, setCoords]               = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading]             = useState(true);
   const [saving, setSaving]               = useState(false);
   const [success, setSuccess]             = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -43,6 +46,7 @@ export default function EditProfilePage() {
         setLocation(data.location_area ?? "");
         setGender((data.gender as "male" | "female") ?? "");
         setPreferredGender((data.preferred_gender as "male" | "female" | "any") ?? "any");
+        setAvatarUrl(data.avatar_url ?? null);
         if (data.lat && data.lng) {
           setHasGps(true);
           setCoords({ lat: data.lat, lng: data.lng });
@@ -78,6 +82,35 @@ export default function EditProfilePage() {
     setHasGps(false);
     setCoords(null);
     setGpsStatus("idle");
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarUploading(true);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.storage as any)
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (!error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: urlData } = (supabase.storage as any)
+        .from("avatars")
+        .getPublicUrl(path);
+      const publicUrl = urlData?.publicUrl + `?t=${Date.now()}`;
+      setAvatarUrl(publicUrl);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from("profiles") as any).update({ avatar_url: publicUrl }).eq("id", user.id);
+    }
+    setAvatarUploading(false);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -125,6 +158,48 @@ export default function EditProfilePage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-5">
+
+        {/* Avatar upload */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative">
+            <div
+              className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center text-3xl font-bold text-white"
+              style={{ background: avatarUrl ? "transparent" : "var(--brand)" }}
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                displayName?.[0]?.toUpperCase() ?? "?"
+              )}
+            </div>
+            {/* Upload button overlay */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center"
+            >
+              {avatarUploading ? (
+                <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin"
+                  style={{ borderColor: "var(--brand) transparent var(--brand) var(--brand)" }} />
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              )}
+            </button>
+          </div>
+          <p className="text-xs text-gray-400">Tap kamera untuk tukar gambar profil</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="user"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+        </div>
 
         {/* Display name */}
         <div>

@@ -79,13 +79,14 @@ export default async function ProfilePage() {
       {/* Settings list */}
       <div className="mx-4 mt-4 bg-white rounded-3xl border border-gray-100 overflow-hidden">
         {[
-          { icon: "🎯", label: "Aktiviti saya", sub: "Urus aktiviti yang kamu cari buddy" },
-          { icon: "🔒", label: "Privasi & Keselamatan", sub: "Kawalan siapa yang boleh nampak kamu" },
-          { icon: "🔔", label: "Notifikasi", sub: "Urus notifikasi push" },
+          { icon: "🎯", label: "Aktiviti saya",         sub: "Urus aktiviti yang kamu cari buddy",   href: "/activities" },
+          { icon: "🔒", label: "Privasi & Keselamatan", sub: "Kawalan siapa yang boleh nampak kamu", href: null },
+          { icon: "🔔", label: "Notifikasi",             sub: "Urus notifikasi push",                 href: null },
         ].map((item, i, arr) => (
-          <button
+          <Link
             key={item.label}
-            className={`w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors ${i < arr.length - 1 ? "border-b border-gray-100" : ""}`}
+            href={item.href ?? "#"}
+            className={`flex items-center gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors ${i < arr.length - 1 ? "border-b border-gray-100" : ""}`}
           >
             <span className="text-xl w-8 text-center">{item.icon}</span>
             <div className="flex-1 min-w-0">
@@ -93,7 +94,7 @@ export default async function ProfilePage() {
               <p className="text-xs text-gray-400 mt-0.5 truncate">{item.sub}</p>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
+          </Link>
         ))}
       </div>
 
