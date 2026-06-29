@@ -37,6 +37,7 @@ function SingleCard({
   index: number;
   onSwipe: (liked: boolean) => void;
 }) {
+  const [imgError, setImgError] = useState(false);
   const x = useMotionValue(0);
   const rotate      = useTransform(x, [-200, 200], [-25, 25]);
   const likeOpacity = useTransform(x, [30, 100], [0, 1]);
@@ -82,16 +83,17 @@ function SingleCard({
       {/* Card body */}
       <div className="w-full h-full rounded-3xl overflow-hidden bg-white shadow-lg">
         {/* Avatar area */}
-        <div className={`relative h-[58%] bg-gradient-to-br ${bg} flex items-center justify-center`}>
-          {profile.avatar_url ? (
+        <div className={`relative h-[58%] bg-gradient-to-br ${bg} flex items-center justify-center overflow-hidden`}>
+          {profile.avatar_url && !imgError ? (
             <img
               src={profile.avatar_url}
               alt={profile.display_name ?? ""}
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             <div
-              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner"
+              className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold"
               style={{ background: avatarColor + "33", color: avatarColor }}
             >
               {getInitials(profile.display_name)}
